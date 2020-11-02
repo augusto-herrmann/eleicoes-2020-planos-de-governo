@@ -8,3 +8,7 @@ http://divulgacandcontas.tse.jus.br/divulga/rest/v1/eleicao/listar/municipios/20
 # Candidatos a prefeito em Feira de Santana, BA
 http://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/listar/2020/35157/2030402020/11/candidatos
 ###
+
+# Informações sobre um candidato específico
+https://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/buscar/2020/35157/2030402020/candidato/50000867342
+###

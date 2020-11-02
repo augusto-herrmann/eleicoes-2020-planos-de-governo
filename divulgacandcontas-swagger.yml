@@ -469,6 +469,32 @@ paths:
                   $ref: "#/definitions/Candidato"
         "404":
           description: "não encontrado"
+  /candidatura/buscar/2020/{municipio}/2030402020/candidato/{candidato}:
+    get:
+      tags:
+      - "eleicoes2020"
+      summary: Candidato
+      description: "Informações sobre o candidato"
+      operationId: consultaCandidato
+      produces:
+      - "application/json"
+      parameters:
+      - name: municipio
+        in: path
+        description: "Código do município"
+        required: true
+        type: integer
+      - name: candidato
+        in: path
+        description: "Código do candidato"
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Candidato" 
 definitions:
   Candidato:
     type: "object"
@@ -482,16 +508,16 @@ definitions:
         type: integer
         format: int32
       idCandidatoSuperior: 
-        type: string
-        format: nullable
+        type: integer
+        format: int32
       nomeCompleto: 
         type: string
       descricaoSexo: 
         type: string
         format: nullable
       dataDeNascimento: 
-        type: string
-        format: nullable
+        type: integer
+        format: int64
       tituloEleitor: 
         type: string
         format: nullable
@@ -516,10 +542,10 @@ definitions:
         type: string
         format: nullable
       gastoCampanha1T: 
-        type: string
+        type: number
         format: nullable
       gastoCampanha2T: 
-        type: string
+        type: number
         format: nullable
       sgUfNascimento: 
         type: string
@@ -537,8 +563,8 @@ definitions:
         type: string
         format: nullable
       dataUltimaAtualizacao: 
-        type: string
-        format: nullable
+        type: integer
+        format: int64
       fotoUrl: 
         type: string
         format: nullable
@@ -575,32 +601,75 @@ definitions:
         format: nullable
       cargo: 
         type: object
-        properties: 
-          codigo: 
-            type: integer
-            format: int32
-          sigla: 
-            type: string
-            format: nullable
-          nome: 
-            type: string
-          codSuperior: 
-            type: integer
-            format: int32
-          titular: 
-            type: boolean
-          contagem: 
-            type: integer
-            format: int32
+        $ref: "#/definitions/Cargo"
       bens: 
-        type: string
+        type: array
         format: nullable
+        items: 
+          type: object
+          properties: 
+            ordem: 
+              type: integer
+              format: int32
+            descricao: 
+              type: string
+            descricaoDeTipoDeBem: 
+              type: string
+            valor: 
+              type: number
+            dataUltimaAtualizacao: 
+              type: integer
+              format: int64
       totalDeBens: 
-        type: string
+        type: number
         format: nullable
       vices: 
-        type: string
+        type: array
         format: nullable
+        items: 
+          type: object
+          properties: 
+            nomeColigacao: 
+              type: string
+              format: nullable
+            composicaoColigacao: 
+              type: string
+              format: nullable
+            stRegistro: 
+              type: string
+              format: nullable
+            situacaoCandidato: 
+              type: string
+              format: nullable
+            urlFoto: 
+              type: string
+            sq_CANDIDATO: 
+              type: integer
+              format: int64
+            sq_CANDIDATO_SUPERIOR: 
+              type: string
+              format: nullable
+            sq_ELEICAO: 
+              type: integer
+              format: int32
+            sg_UE: 
+              type: string
+            nr_CANDIDATO: 
+              type: string
+            nm_URNA: 
+              type: string
+            nm_CANDIDATO: 
+              type: string
+            dt_ULTIMA_ATUALIZACAO: 
+              type: integer
+              format: int64
+            ds_CARGO: 
+              type: string
+              format: nullable
+            nm_PARTIDO: 
+              type: string
+            sg_PARTIDO: 
+              type: string
       partido: 
         type: object
         properties: 
@@ -654,17 +723,70 @@ definitions:
           descricaoEleicao: 
             type: string
       emails: 
-        type: string
+        type: array
         format: nullable
+        items: 
+          type: string
       sites: 
-        type: string
+        type: array
         format: nullable
+        items: 
+          type: string
       arquivos: 
-        type: string
+        type: array
         format: nullable
+        items: 
+          type: object
+          properties: 
+            idArquivo: 
+              type: integer
+              format: int64
+            nome: 
+              type: string
+            url: 
+              type: string
+            tipo: 
+              type: string
+            codTipo: 
+              type: string
+            fullFilePath: 
+              type: string
+              format: nullable
+            fileInputStream: 
+              type: string
+              format: nullable
+            fileByteArray: 
+              type: string
+              format: nullable
       eleicoesAnteriores: 
-        type: string
+        type: array
         format: nullable
+        items: 
+          type: object
+          properties: 
+            nrAno: 
+              type: integer
+              format: int32
+            id: 
+              type: string
+            nomeUrna: 
+              type: string
+            nomeCandidato: 
+              type: string
+            idEleicao: 
+              type: string
+            sgUe: 
+              type: string
+            local: 
+              type: string
+            cargo: 
+              type: string
+            partido: 
+              type: string
+            situacaoTotalizacao: 
+              type: string
+            txLink: 
+              type: string
       substituto: 
         type: string
         format: nullable
@@ -672,13 +794,13 @@ definitions:
         type: string
         format: nullable
       codigoSituacaoCandidato: 
-        type: string
-        format: nullable
+        type: integer
+        format: int32
       descricaoSituacaoCandidato: 
         type: string
         format: nullable
       isCandidatoInapto: 
-        type: string
+        type: boolean
         format: nullable
       codigoSituacaoPartido: 
         type: string
@@ -695,43 +817,43 @@ definitions:
         type: integer
         format: int32
       st_SUBSTITUIDO: 
-        type: string
+        type: boolean
         format: nullable
       st_MOTIVO_FICHA_LIMPA: 
-        type: string
+        type: boolean
         format: nullable
       st_MOTIVO_ABUSO_PODER: 
-        type: string
+        type: boolean
         format: nullable
       st_MOTIVO_COMPRA_VOTO: 
-        type: string
+        type: boolean
         format: nullable
       st_MOTIVO_CONDUTA_VEDADA: 
-        type: string
+        type: boolean
         format: nullable
       st_MOTIVO_GASTO_ILICITO: 
-        type: string
+        type: boolean
         format: nullable
       ds_MOTIVO_OUTROS: 
         type: string
         format: nullable
       st_MOTIVO_AUSENCIA_REQUISITO: 
-        type: string
+        type: boolean
         format: nullable
       st_MOTIVO_IND_PARTIDO: 
-        type: string
+        type: boolean
         format: nullable
       st_DIVULGA: 
-        type: string
+        type: boolean
         format: nullable
       st_DIVULGA_BENS: 
-        type: string
+        type: boolean
         format: nullable
       st_REELEICAO: 
         type: boolean
       st_DIVULGA_ARQUIVOS: 
-        type: string
-        format: nullable    
+        type: boolean
+        format: nullable
   Cargo:
     type: object
     properties:
