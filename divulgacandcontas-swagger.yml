@@ -12,7 +12,7 @@ tags:
 - name: eleicoes2020
   description: "Eleições municipais de 2020"
 schemes:
-- http
+- https
 paths:
   /eleicao/listar/municipios/2030402020/{municipio}/cargos:
     get:
