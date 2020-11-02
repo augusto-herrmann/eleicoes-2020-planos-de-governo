@@ -27,6 +27,26 @@ A documentação está no arquivo
 o arquivo [divulgacandcontas.http](divulgacandcontas.http) possui alguns
 exemplos de consultas prontas para uso.
 
+### Experimentando com chamadas à API
+
+Para experimentar com a definição da API no formato Open API, copie o conteúdo
+do arquivo [divulgacandcontas-swagger.yml](divulgacandcontas-swagger.yml) e
+cole-o em [editor.swagger.io](https://editor.swagger.io/). Será criada uma
+interface web para que você possa preencher os parâmetros e experimentar com
+as consultas.
+
+Todavia, a API do TSE possui dois problemas que impedirão as consultas de
+funcionar pelo navegador: a API não suporta
+*[Cross Origin Resource Sharing](https://pt.wikipedia.org/wiki/Cross-origin_resource_sharing)*
+(CORS), o que faz com que o navegador bloqueie chamadas à API a partir de
+outros domíníos (como o editor Swagger, por exemplo).
+
+Uma possível solução, para quem usa Firefox, é instalar a extensão
+[CORS Everywhere](https://addons.mozilla.org/en-US/firefox/addon/cors-everywhere/)
+e configurar o "*activation whitelist*" para `/^https:\/\/editor.swagger.io/`.
+Ative a extensão na aba do editor de Swagger para que as chamadas à API passem
+a funcionar no Firefox.
+
 ## Como contribuir
 
 Essa documentação está em construção e contém apenas uma pequena fração do
