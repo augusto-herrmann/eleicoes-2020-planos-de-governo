@@ -56,7 +56,7 @@ def get_proposal_url(candidate_response):
 def download_proposals(url):
     response = requests.get(url)
     candidate_name = candidate_response["nomeUrna"].lower().replace(" ", "-")
-    with open(f"proposta-candidato-{candidate_name}.pdf", "wb") as f:
+    with open(f"pdfs/proposta-candidato-{candidate_name}.pdf", "wb") as f:
         f.write(response.content)
 
 
