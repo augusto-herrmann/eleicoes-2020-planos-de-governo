@@ -62,7 +62,8 @@ def download_proposals(url, state, city, candidate_name):
     Path(f"pdfs/{state}/{city}").mkdir(parents=True, exist_ok=True)
     response = requests.get(url)
     candidate_name = candidate_name.lower().replace(" ", "-")
-    with open(f"pdfs/{state}/{city}/proposta-candidato-{candidate_name}.pdf", "wb") as f:
+    file_name = f"pdfs/{state}/{city}/proposta-candidato-{candidate_name}.pdf"
+    with open(file_name, "wb") as f:
         f.write(response.content)
 
 
@@ -83,8 +84,15 @@ def fill_zeroes(code):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Exporte para um csv as propostas dos candidatos a prefeito.")
-    parser.add_argument("--download-proposals", action="store_true", help="Faz download do PDF das propostas.")
+    parser = argparse.ArgumentParser(
+        description=\
+        "Exporte para um csv as propostas dos candidatos a prefeito."
+        )
+    parser.add_argument(
+        "--download-proposals",
+        action="store_true",
+        help="Faz download do PDF das propostas."
+        )
     parser.add_argument("--state", help="Sigla do estado desejado.")
     args = parser.parse_args()
     
@@ -99,28 +107,46 @@ if __name__ == "__main__":
                 "state": city["estado_abrev"]
             }
 
-    wait_interval = (1, 10) # espera entre requisições (min., máx., em segundos)
+    # espera entre requisições (mínimo e máximo em segundos)
+    wait_interval = (1, 10)
     position_code = "11"  # prefeito
     state_label = f"-{args.state}" if args.state else ""
-    with open(f"propostas-de-governo{state_label}.csv", "w", newline="") as csvfile:
+    file_name = f"propostas-de-governo{state_label}.csv"
+    with open(file_name, "w", newline="") as csvfile:
         spamwriter = csv.writer(csvfile)
-        spamwriter.writerow(["codigo_cidade_tse", "municipio", "sigla_estado", "codigo_prefeito_tse", "nome_urna", "url"])
+        spamwriter.writerow([
+            "codigo_cidade_tse", "municipio", "sigla_estado",
+            "codigo_prefeito_tse", "nome_urna", "url"
+            ])
         for city in cities.values():
-            follow_candidates = (args.state and args.state.upper() == city["state"]) or not args.state
+            follow_candidates = \
+                (args.state and args.state.upper() == city["state"]) \
+                or not args.state
             if follow_candidates:
                 city_code = fill_zeroes(city["code"])
-                candidates = get_candidates_from(city_code, position_code)
+                candidates = get_candidates_from(
+                    city_code, position_code)
                 print(city_code, city)
                 time.sleep(random.randint(*wait_interval))
 
                 for candidate in candidates["candidatos"]:
-                    candidate_details = get_candidate(city_code, candidate["id"])
+                    candidate_details = get_candidate(
+                        city_code,
+                        candidate["id"]
+                        )
                     time.sleep(random.randint(*wait_interval))
                     url = get_proposal_url(candidate_details)
-                    spamwriter.writerow([city_code, city["city"], city["state"], candidate_details["id"], candidate_details["nomeUrna"], url])
+                    spamwriter.writerow([
+                        city_code, city["city"], city["state"],
+                        candidate_details["id"],
+                        candidate_details["nomeUrna"], url
+                        ])
 
                     if args.download_proposals:
-                        download_proposals(url, city["state"], city["city"], candidate_details["nomeUrna"])
+                        download_proposals(
+                            url, city["state"], city["city"],
+                            candidate_details["nomeUrna"]
+                            )
                         time.sleep(random.randint(*wait_interval))
     end = time.time()
     print(f"Tempo de execução: {end - start}")
