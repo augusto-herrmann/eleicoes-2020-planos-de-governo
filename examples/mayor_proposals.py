@@ -1,7 +1,9 @@
 import argparse
 import csv
+from pathlib import Path
 from pprint import pprint
 import requests
+import time
 
 
 """
@@ -18,6 +20,8 @@ links para as propostas.
 
 Caso queira fazer download dos arquivos PDF, execute:
 `python mayor_proposals.py --download-proposals`
+Os PDFs baixados estarão na pasta `examples/pdfs`, separados
+por estado e cidade.
 """
 
 BASE_ENDPOINT = "http://divulgacandcontas.tse.jus.br/divulga/rest/v1"
@@ -53,10 +57,11 @@ def get_proposal_url(candidate_response):
     return
 
 
-def download_proposals(url):
+def download_proposals(url, state, city, candidate_name):
+    Path(f"pdfs/{state}/{city}").mkdir(parents=True, exist_ok=True)
     response = requests.get(url)
-    candidate_name = candidate_response["nomeUrna"].lower().replace(" ", "-")
-    with open(f"pdfs/proposta-candidato-{candidate_name}.pdf", "wb") as f:
+    candidate_name = candidate_name.lower().replace(" ", "-")
+    with open(f"pdfs/{state}/{city}/proposta-candidato-{candidate_name}.pdf", "wb") as f:
         f.write(response.content)
 
 
@@ -81,6 +86,7 @@ if __name__ == "__main__":
     parser.add_argument("--download-proposals", action="store_true", help="Faz download do PDF das propostas.")
     args = parser.parse_args()
     
+    start = time.time()
     cities = {}
     with open("diretorio_municipios.csv", "r") as f:
         all_cities = csv.DictReader(f)
@@ -100,9 +106,11 @@ if __name__ == "__main__":
             candidates = get_candidates_from(city_code, position_code)
             print(city_code, city)
             for candidate in candidates["candidatos"]:
-                candidate_details = get_candidate(city["code"], candidate["id"])
+                candidate_details = get_candidate(city_code, candidate["id"])
                 url = get_proposal_url(candidate_details)
-                spamwriter.writerow([city["code"], city["city"], city["state"], candidate_details["id"], candidate_details["nomeUrna"], url])
+                spamwriter.writerow([city_code, city["city"], city["state"], candidate_details["id"], candidate_details["nomeUrna"], url])
                 
                 if args.download_proposals:
-                    download_proposals(candidate_details)
+                    download_proposals(url, city["state"], city["city"], candidate_details["nomeUrna"])
+    end = time.time()
+    print(f"Tempo de execução: {end - start}")
