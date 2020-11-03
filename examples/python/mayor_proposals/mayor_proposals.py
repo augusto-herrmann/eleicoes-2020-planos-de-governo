@@ -3,7 +3,7 @@ import csv
 from pathlib import Path
 from pprint import pprint
 import random
-import time
+import time, datetime
 
 import requests
 
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     parser.add_argument("--state", help="Sigla do estado desejado.")
     args = parser.parse_args()
     
-    start = time.time()
+    start = datetime.datetime.now()
     cities = {}
     with open("diretorio_municipios.csv", "r") as f:
         all_cities = csv.DictReader(f)
@@ -150,5 +150,5 @@ if __name__ == "__main__":
                             candidate_details["nomeUrna"]
                             )
                         time.sleep(random.randint(*wait_interval))
-    end = time.time()
-    print(f"Tempo de execução: {end - start}")
+    end = datetime.datetime.now()
+    print(f"Tempo de execução: {str(end - start)}")
