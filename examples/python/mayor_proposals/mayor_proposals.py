@@ -30,6 +30,10 @@ ELECTION_CODE = "2030402020" # eleições municipais de 2020
 POSITION_CODE = "11"  # prefeito
 # espera entre requisições (mínimo e máximo em segundos)
 WAIT_INTERVAL = (3, 10)
+SCHEMA = (
+    "codigo_cidade_tse", "municipio", "sigla_estado",
+    "codigo_prefeito_tse", "nome_urna", "sigla_partido", "url"
+)
 
 def get_positions_from(city):
     endpoint = f"{BASE_ENDPOINT}/eleicao/listar/municipios/{ELECTION_CODE}/{city}/cargos"
@@ -114,10 +118,7 @@ if __name__ == "__main__":
     file_name = f"propostas-de-governo{state_label}.csv"
     with open(file_name, "w", newline="") as csvfile:
         spamwriter = csv.writer(csvfile)
-        spamwriter.writerow([
-            "codigo_cidade_tse", "municipio", "sigla_estado",
-            "codigo_prefeito_tse", "nome_urna", "sigla_partido", "url"
-            ])
+        spamwriter.writerow(SCHEMA)
         for city in cities.values():
             follow_candidates = \
                 (args.state and args.state.upper() == city["state"]) \
