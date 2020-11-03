@@ -1,5 +1,3 @@
-Documentação não oficial da API DivulgaCandContas do TSE
-
 # Documentação não oficial da API DivulgaCandContas
 
 O Tribunal Superior Eleitoral disponibiliza os dados sobre candidaturas em
@@ -46,6 +44,9 @@ Uma possível solução, para quem usa Firefox, é instalar a extensão
 e configurar o "*activation whitelist*" para `/^https:\/\/editor.swagger.io/`.
 Ative a extensão na aba do editor de Swagger para que as chamadas à API passem
 a funcionar no Firefox.
+
+Você pode encontrar exemplos de scripts para acessar essa API no diretório
+[`examples`](examples/).
 
 ## Como contribuir
 
