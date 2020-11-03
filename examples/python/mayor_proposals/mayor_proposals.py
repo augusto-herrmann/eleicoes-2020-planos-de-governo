@@ -26,7 +26,10 @@ por estado e cidade.
 """
 
 BASE_ENDPOINT = "http://divulgacandcontas.tse.jus.br/divulga/rest/v1"
-ELECTION_CODE = "2030402020"
+ELECTION_CODE = "2030402020" # eleições municipais de 2020
+POSITION_CODE = "11"  # prefeito
+# espera entre requisições (mínimo e máximo em segundos)
+WAIT_INTERVAL = (1, 10)
 
 def get_positions_from(city):
     endpoint = f"{BASE_ENDPOINT}/eleicao/listar/municipios/{ELECTION_CODE}/{city}/cargos"
@@ -107,9 +110,6 @@ if __name__ == "__main__":
                 "state": city["estado_abrev"]
             }
 
-    # espera entre requisições (mínimo e máximo em segundos)
-    wait_interval = (1, 10)
-    position_code = "11"  # prefeito
     state_label = f"-{args.state}" if args.state else ""
     file_name = f"propostas-de-governo{state_label}.csv"
     with open(file_name, "w", newline="") as csvfile:
@@ -125,16 +125,16 @@ if __name__ == "__main__":
             if follow_candidates:
                 city_code = fill_zeroes(city["code"])
                 candidates = get_candidates_from(
-                    city_code, position_code)
+                    city_code, POSITION_CODE)
                 print(city_code, city)
-                time.sleep(random.randint(*wait_interval))
+                time.sleep(random.randint(*WAIT_INTERVAL))
 
                 for candidate in candidates["candidatos"]:
                     candidate_details = get_candidate(
                         city_code,
                         candidate["id"]
                         )
-                    time.sleep(random.randint(*wait_interval))
+                    time.sleep(random.randint(*WAIT_INTERVAL))
                     url = get_proposal_url(candidate_details)
                     spamwriter.writerow([
                         city_code, city["city"], city["state"],
@@ -149,6 +149,6 @@ if __name__ == "__main__":
                             url, city["state"], city["city"],
                             candidate_details["nomeUrna"]
                             )
-                        time.sleep(random.randint(*wait_interval))
+                        time.sleep(random.randint(*WAIT_INTERVAL))
     end = datetime.datetime.now()
     print(f"Tempo de execução: {str(end - start)}")
