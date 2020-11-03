@@ -2,9 +2,10 @@ import argparse
 import csv
 from pathlib import Path
 from pprint import pprint
-import requests
+import os
 import time
 
+import requests
 
 """
 Esse script acessa a API do TSE e exporta um CSV com os links
