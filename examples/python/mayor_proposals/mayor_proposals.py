@@ -116,7 +116,7 @@ if __name__ == "__main__":
         spamwriter = csv.writer(csvfile)
         spamwriter.writerow([
             "codigo_cidade_tse", "municipio", "sigla_estado",
-            "codigo_prefeito_tse", "nome_urna", "url"
+            "codigo_prefeito_tse", "nome_urna", "sigla_partido", "url"
             ])
         for city in cities.values():
             follow_candidates = \
@@ -139,7 +139,9 @@ if __name__ == "__main__":
                     spamwriter.writerow([
                         city_code, city["city"], city["state"],
                         candidate_details["id"],
-                        candidate_details["nomeUrna"], url
+                        candidate_details["nomeUrna"],
+                        candidate_details["partido"]["sigla"],
+                        url
                         ])
 
                     if args.download_proposals:
