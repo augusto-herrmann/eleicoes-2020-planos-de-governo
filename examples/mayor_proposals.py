@@ -75,7 +75,7 @@ def get_candidate(city, candidate_code):
 
 def fill_zeroes(code):
     code = str(code)
-    if len(code) < 5:  # expected code e.g. 00094
+    if len(code) < 5:  # verifica se tem tamanho esperado e.g. 00094
         zeroes = 5 - len(code)
         return f"{'0' * zeroes}{code}"
     return code
@@ -84,6 +84,7 @@ def fill_zeroes(code):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Exporte para um csv as propostas dos candidatos a prefeito.")
     parser.add_argument("--download-proposals", action="store_true", help="Faz download do PDF das propostas.")
+    parser.add_argument("--state", help="Sigla do estado desejado.")
     args = parser.parse_args()
     
     start = time.time()
@@ -98,19 +99,23 @@ if __name__ == "__main__":
             }
 
     position_code = "11"  # prefeito
-    with open("propostas-de-governo.csv", "w", newline="") as csvfile:
+    state_label = f"-{args.state}" if args.state else ""
+    with open(f"propostas-de-governo{state_label}.csv", "w", newline="") as csvfile:
         spamwriter = csv.writer(csvfile)
         spamwriter.writerow(["codigo_cidade_tse", "municipio", "sigla_estado", "codigo_prefeito_tse", "nome_urna", "url"])
         for city in cities.values():
-            city_code = fill_zeroes(city["code"])
-            candidates = get_candidates_from(city_code, position_code)
-            print(city_code, city)
-            for candidate in candidates["candidatos"]:
-                candidate_details = get_candidate(city_code, candidate["id"])
-                url = get_proposal_url(candidate_details)
-                spamwriter.writerow([city_code, city["city"], city["state"], candidate_details["id"], candidate_details["nomeUrna"], url])
-                
-                if args.download_proposals:
-                    download_proposals(url, city["state"], city["city"], candidate_details["nomeUrna"])
+            follow_candidates = (args.state and args.state.upper() == city["state"]) or not args.state
+            if follow_candidates:
+                city_code = fill_zeroes(city["code"])
+                candidates = get_candidates_from(city_code, position_code)
+                print(city_code, city)
+
+                for candidate in candidates["candidatos"]:
+                    candidate_details = get_candidate(city_code, candidate["id"])
+                    url = get_proposal_url(candidate_details)
+                    spamwriter.writerow([city_code, city["city"], city["state"], candidate_details["id"], candidate_details["nomeUrna"], url])
+
+                    if args.download_proposals:
+                        download_proposals(url, city["state"], city["city"], candidate_details["nomeUrna"])
     end = time.time()
     print(f"Tempo de execução: {end - start}")
