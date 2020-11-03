@@ -2,7 +2,7 @@ import argparse
 import csv
 from pathlib import Path
 from pprint import pprint
-import os
+import random
 import time
 
 import requests
@@ -99,6 +99,7 @@ if __name__ == "__main__":
                 "state": city["estado_abrev"]
             }
 
+    wait_interval = (1, 10) # espera entre requisições (min., máx., em segundos)
     position_code = "11"  # prefeito
     state_label = f"-{args.state}" if args.state else ""
     with open(f"propostas-de-governo{state_label}.csv", "w", newline="") as csvfile:
@@ -110,13 +111,16 @@ if __name__ == "__main__":
                 city_code = fill_zeroes(city["code"])
                 candidates = get_candidates_from(city_code, position_code)
                 print(city_code, city)
+                time.sleep(random.randint(*wait_interval))
 
                 for candidate in candidates["candidatos"]:
                     candidate_details = get_candidate(city_code, candidate["id"])
+                    time.sleep(random.randint(*wait_interval))
                     url = get_proposal_url(candidate_details)
                     spamwriter.writerow([city_code, city["city"], city["state"], candidate_details["id"], candidate_details["nomeUrna"], url])
 
                     if args.download_proposals:
                         download_proposals(url, city["state"], city["city"], candidate_details["nomeUrna"])
+                        time.sleep(random.randint(*wait_interval))
     end = time.time()
     print(f"Tempo de execução: {end - start}")
