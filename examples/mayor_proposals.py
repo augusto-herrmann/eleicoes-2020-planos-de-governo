@@ -102,7 +102,7 @@ if __name__ == "__main__":
             for candidate in candidates["candidatos"]:
                 candidate_details = get_candidate(city["code"], candidate["id"])
                 url = get_proposal_url(candidate_details)
-                spamwriter.writerow([city["code"], city["city"], city["state"], candidate_details[""], candidate_details[""], url])
+                spamwriter.writerow([city["code"], city["city"], city["state"], candidate_details["id"], candidate_details["nomeUrna"], url])
                 
                 if args.download_proposals:
                     download_proposals(candidate_details)
