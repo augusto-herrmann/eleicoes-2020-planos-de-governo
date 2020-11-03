@@ -3,6 +3,7 @@ import csv
 from pathlib import Path
 from pprint import pprint
 import random
+import os
 import time, datetime
 
 import requests
@@ -101,9 +102,39 @@ if __name__ == "__main__":
         help="Faz download do PDF das propostas."
         )
     parser.add_argument("--state", help="Sigla do estado desejado.")
+    parser.add_argument(
+        "--continue-from",
+        help="Arquivo CSV parcial a continuar"
+        )
     args = parser.parse_args()
-    
+
     start = datetime.datetime.now()
+
+    state_label = f"-{args.state}" if args.state else ""
+    file_name = f"propostas-de-governo{state_label}.csv"
+    skip_cities = set() # essas já foram coletadas
+    skip_proposals = set()
+    if args.continue_from:
+        file_name = args.continue_from
+        if not os.path.exists(file_name):
+            raise ValueError(f"O arquivo não existe: {file_name}")
+        with open(file_name, "r") as f:
+            reader = csv.DictReader(f)
+            if tuple(reader.fieldnames) != SCHEMA:
+                raise ValueError(
+                    f"Os campos do arquivo {file_name} não correspondem"
+                    " ao esquema esperado:\n\n" +
+                    ",".join(SCHEMA))
+            for row in reader:
+                city_code = row['codigo_cidade_tse']
+                if city_code not in skip_cities: # nova cidade
+                    skip_proposals = set() # não precisa guardar os anteriores
+                skip_cities.add(city_code)
+                skip_proposals.add(row['codigo_prefeito_tse'])
+            # o último não deve ser pulado pois pode estar incompleto
+            skip_cities.remove(city_code)
+            print(f"Continuando a partir de {city_code}...")
+
     cities = {}
     with open("diretorio_municipios.csv", "r") as f:
         all_cities = csv.DictReader(f)
@@ -114,23 +145,36 @@ if __name__ == "__main__":
                 "state": city["estado_abrev"]
             }
 
-    state_label = f"-{args.state}" if args.state else ""
-    file_name = f"propostas-de-governo{state_label}.csv"
-    with open(file_name, "w", newline="") as csvfile:
+    with open(
+        file_name,
+        "a" if args.continue_from else "w",
+        newline=""
+        ) as csvfile:
         spamwriter = csv.writer(csvfile)
-        spamwriter.writerow(SCHEMA)
+        if not args.continue_from:
+            spamwriter.writerow(SCHEMA)
         for city in cities.values():
-            follow_candidates = \
-                (args.state and args.state.upper() == city["state"]) \
-                or not args.state
-            if follow_candidates:
-                city_code = fill_zeroes(city["code"])
+            city_code = fill_zeroes(city["code"])
+            follow_city = \
+                (
+                    (args.state and args.state.upper() == city["state"]) \
+                    or not args.state
+                ) and \
+                (
+                    city_code not in skip_cities \
+                    or not args.continue_from
+                )
+            if follow_city:
                 candidates = get_candidates_from(
                     city_code, POSITION_CODE)
                 print(city_code, city)
                 time.sleep(random.randint(*WAIT_INTERVAL))
 
-                for candidate in candidates["candidatos"]:
+                candidates_to_follow = (
+                    candidate for candidate in candidates["candidatos"] \
+                    if str(candidate["id"]) not in skip_proposals
+                )
+                for candidate in candidates_to_follow:
                     candidate_details = get_candidate(
                         city_code,
                         candidate["id"]
