@@ -29,7 +29,7 @@ BASE_ENDPOINT = "http://divulgacandcontas.tse.jus.br/divulga/rest/v1"
 ELECTION_CODE = "2030402020" # eleições municipais de 2020
 POSITION_CODE = "11"  # prefeito
 # espera entre requisições (mínimo e máximo em segundos)
-WAIT_INTERVAL = (1, 10)
+WAIT_INTERVAL = (3, 10)
 
 def get_positions_from(city):
     endpoint = f"{BASE_ENDPOINT}/eleicao/listar/municipios/{ELECTION_CODE}/{city}/cargos"
