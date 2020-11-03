@@ -14,5 +14,5 @@ links para as propostas.
 
 Caso queira fazer download dos arquivos PDF, execute:
 `python mayor_proposals.py --download-proposals`
-Os PDFs baixados estarão na pasta `examples/pdfs`, separados
+Os PDFs baixados estarão na subpasta `pdfs`, separados
 por estado e cidade.
