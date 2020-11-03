@@ -25,6 +25,18 @@ A documentação está no arquivo
 o arquivo [divulgacandcontas.http](divulgacandcontas.http) possui alguns
 exemplos de consultas prontas para uso.
 
+**Mas atenção:** antes de usar a API, tome alguns cuidados:
+* confira se a sua necessidade de dados pode ser satisfeita pelos downloads
+  de dados disponíveis no
+  [repositório de dados eleitorais](https://www.tse.jus.br/eleicoes/estatisticas/repositorio-de-dados-eleitorais-1/repositorio-de-dados-eleitorais)
+  do TSE. Use a API apenas se os dados não estiverem disponíveis lá (por
+  exemplo, os planos de governo dos candidatos, como nos [exemplos](examples))
+  ou você está querendo informações atualizadas apenas por um recorte dos
+  dados (ex.: candidatos de um município específico).
+* Se decidir usar a API, coloque um intervalo de tempo entre as consultas,
+  para não sobrecarregar os servidores do TSE. Dessa maneira evitamos que ela
+  seja retirada do ar e reduz o risco do seu IP ser bloqueado na API.
+
 ### Experimentando com chamadas à API
 
 Para experimentar com a definição da API no formato Open API, copie o conteúdo
