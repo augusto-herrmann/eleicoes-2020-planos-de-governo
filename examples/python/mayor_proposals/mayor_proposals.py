@@ -31,6 +31,7 @@ ELECTION_CODE = "2030402020" # eleições municipais de 2020
 POSITION_CODE = "11"  # prefeito
 # espera entre requisições (mínimo e máximo em segundos)
 WAIT_INTERVAL = (3, 10)
+TIMEOUT = 20 # se não responder em 20 segundos vai falhar
 SCHEMA = (
     "codigo_cidade_tse", "municipio", "sigla_estado",
     "codigo_prefeito_tse", "nome_urna", "sigla_partido", "url"
@@ -38,7 +39,7 @@ SCHEMA = (
 
 def get_positions_from(city):
     endpoint = f"{BASE_ENDPOINT}/eleicao/listar/municipios/{ELECTION_CODE}/{city}/cargos"
-    response = requests.get(endpoint)
+    response = requests.get(endpoint, timeout=TIMEOUT)
     if response:
         return response.json()
     return
@@ -46,7 +47,7 @@ def get_positions_from(city):
 
 def get_candidates_from(city, position_code):
     endpoint = f"{BASE_ENDPOINT}/candidatura/listar/2020/{city}/{ELECTION_CODE}/{position_code}/candidatos"
-    response = requests.get(endpoint)
+    response = requests.get(endpoint, timeout=TIMEOUT)
     if response:
         return response.json()
     return
@@ -68,7 +69,7 @@ def get_proposal_url(candidate_response):
 
 def download_proposals(url, state, city, candidate_name):
     Path(f"pdfs/{state}/{city}").mkdir(parents=True, exist_ok=True)
-    response = requests.get(url)
+    response = requests.get(url, timeout=TIMEOUT)
     candidate_name = candidate_name.lower().replace(" ", "-")
     file_name = f"pdfs/{state}/{city}/proposta-candidato-{candidate_name}.pdf"
     with open(file_name, "wb") as f:
@@ -77,7 +78,7 @@ def download_proposals(url, state, city, candidate_name):
 
 def get_candidate(city, candidate_code):
     endpoint = f"{BASE_ENDPOINT}/candidatura/buscar/2020/{city}/{ELECTION_CODE}/candidato/{candidate_code}"
-    response = requests.get(endpoint)
+    response = requests.get(endpoint, timeout=TIMEOUT)
     if response:
         return response.json()
     return
