@@ -51,6 +51,7 @@ def get_cities_info(file_name: str) -> dict:
             "https://basedosdados.org/dataset/br-basedosdados-diretorios-brasil#"
             )
     cities = {}
+    print(f"Lendo {file_name}...")
     with open(file_name, "r") as f:
         all_cities = csv.DictReader(f)
         for city in all_cities:
@@ -59,6 +60,7 @@ def get_cities_info(file_name: str) -> dict:
                 "city": city["municipio"],
                 "state": city["estado_abrev"]
             }
+    print(f"Lidas informações sobre {len(cities)} municípios.")
     return cities
 
 def get_positions_from(city):
@@ -144,6 +146,65 @@ def get_proposals_to_skip(file_name: str) -> (set, set):
         print(f"Continuando a partir de {city_code}...")
     return skip_cities, skip_proposals
 
+def crawl_proposals(
+    file_name: str,
+    cities: dict,
+    only_state: str,
+    incremental: bool,
+    download_document: bool
+    ):
+    "Percorre os municípios e obtém os metadados a partir da API"
+    with open(
+        file_name,
+        "a" if incremental else "w",
+        newline=""
+        ) as csvfile:
+        spamwriter = csv.writer(csvfile)
+        if not incremental:
+            spamwriter.writerow(SCHEMA)
+        for city in cities.values():
+            city_code = fill_zeroes(city["code"])
+            follow_city = \
+                (
+                    (only_state and only_state.upper() == city["state"]) \
+                    or not only_state
+                ) and \
+                (
+                    city_code not in skip_cities \
+                    or not incremental
+                )
+            if follow_city:
+                candidates = get_candidates_from(
+                    city_code, POSITION_CODE)
+                print(city_code, city)
+                wait_cooldown()
+
+                candidates_to_follow = (
+                    candidate for candidate in candidates["candidatos"] \
+                    if str(candidate["id"]) not in skip_proposals
+                )
+                for candidate in candidates_to_follow:
+                    candidate_details = get_candidate(
+                        city_code,
+                        candidate["id"]
+                        )
+                    wait_cooldown()
+                    url = get_proposal_url(candidate_details)
+                    spamwriter.writerow([
+                        city_code, city["city"], city["state"],
+                        candidate_details["id"],
+                        candidate_details["nomeUrna"],
+                        candidate_details["partido"]["sigla"],
+                        url
+                        ])
+
+                    if download_document:
+                        download_proposal(
+                            url, city["state"], city["city"],
+                            candidate_details["nomeUrna"]
+                            )
+                        wait_cooldown()
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=\
@@ -189,55 +250,13 @@ if __name__ == "__main__":
 
     cities = get_cities_info("diretorio_municipios.csv")
 
-    with open(
-        file_name,
-        "a" if args.continue_from else "w",
-        newline=""
-        ) as csvfile:
-        spamwriter = csv.writer(csvfile)
-        if not args.continue_from:
-            spamwriter.writerow(SCHEMA)
-        for city in cities.values():
-            city_code = fill_zeroes(city["code"])
-            follow_city = \
-                (
-                    (args.state and args.state.upper() == city["state"]) \
-                    or not args.state
-                ) and \
-                (
-                    city_code not in skip_cities \
-                    or not args.continue_from
-                )
-            if follow_city:
-                candidates = get_candidates_from(
-                    city_code, POSITION_CODE)
-                print(city_code, city)
-                wait_cooldown()
-
-                candidates_to_follow = (
-                    candidate for candidate in candidates["candidatos"] \
-                    if str(candidate["id"]) not in skip_proposals
-                )
-                for candidate in candidates_to_follow:
-                    candidate_details = get_candidate(
-                        city_code,
-                        candidate["id"]
-                        )
-                    wait_cooldown()
-                    url = get_proposal_url(candidate_details)
-                    spamwriter.writerow([
-                        city_code, city["city"], city["state"],
-                        candidate_details["id"],
-                        candidate_details["nomeUrna"],
-                        candidate_details["partido"]["sigla"],
-                        url
-                        ])
-
-                    if args.download_proposals:
-                        download_proposal(
-                            url, city["state"], city["city"],
-                            candidate_details["nomeUrna"]
-                            )
-                        wait_cooldown()
+    crawl_proposals(
+        file_name=file_name,
+        cities=cities,
+        only_state=args.state,
+        incremental=bool(args.continue_from),
+        download_document=bool(args.download_proposals)
+        )
+    
     end = datetime.datetime.now()
     print(f"Tempo de execução: {str(end - start)}")
