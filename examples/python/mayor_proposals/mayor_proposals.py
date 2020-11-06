@@ -91,6 +91,34 @@ def fill_zeroes(code):
         return f"{'0' * zeroes}{code}"
     return code
 
+def validate_csv(file_name):
+    "Verifica se o arquivo CSV existe e tem o esquema certo"
+    if not os.path.exists(file_name):
+        raise ValueError(f"O arquivo não existe: {file_name}")
+    with open(file_name, "r") as f:
+        reader = csv.DictReader(f)
+        if tuple(reader.fieldnames) != SCHEMA:
+            raise ValueError(
+                f"Os campos do arquivo {file_name} não correspondem"
+                " ao esquema esperado:\n\n" +
+                ",".join(SCHEMA))
+
+def get_proposals_to_skip(file_name) -> (set, set):
+    "Obtém quais cidades e propostas pular, pois já estão no arquivo"
+    skip_cities = set() # essas já foram coletadas
+    skip_proposals = set()
+    with open(file_name, "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            city_code = row['codigo_cidade_tse']
+            if city_code not in skip_cities: # nova cidade
+                skip_proposals = set() # não precisa guardar os anteriores
+            skip_cities.add(city_code)
+            skip_proposals.add(row['codigo_prefeito_tse'])
+        # o último não deve ser pulado pois pode estar incompleto
+        skip_cities.remove(city_code)
+        print(f"Continuando a partir de {city_code}...")
+    return skip_cities, skip_proposals
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -100,12 +128,17 @@ if __name__ == "__main__":
     parser.add_argument(
         "--download-proposals",
         action="store_true",
-        help="Faz download do PDF das propostas."
+        help="Faz download dos PDF das propostas durante o processamento."
         )
     parser.add_argument("--state", help="Sigla do estado desejado.")
-    parser.add_argument(
+    command_group = parser.add_mutually_exclusive_group()
+    command_group.add_argument(
         "--continue-from",
-        help="Arquivo CSV parcial a continuar"
+        help="Arquivo CSV parcial a continuar",
+        )
+    command_group.add_argument(
+        "--download-from",
+        help="Fazer download dos PDF das propostas a partir do CSV",
         )
     args = parser.parse_args()
 
@@ -113,28 +146,22 @@ if __name__ == "__main__":
 
     state_label = f"-{args.state}" if args.state else ""
     file_name = f"propostas-de-governo{state_label}.csv"
-    skip_cities = set() # essas já foram coletadas
-    skip_proposals = set()
+    
     if args.continue_from:
         file_name = args.continue_from
-        if not os.path.exists(file_name):
-            raise ValueError(f"O arquivo não existe: {file_name}")
+        validate_csv(file_name)
+        skip_cities, skip_proposals = get_proposals_to_skip(file_name)
+    else:
+        skip_cities = set()
+        skip_proposals = set()
+
+    if args.download_from:
+        file_name = args.download_from
+        validate_csv(file_name)
         with open(file_name, "r") as f:
             reader = csv.DictReader(f)
-            if tuple(reader.fieldnames) != SCHEMA:
-                raise ValueError(
-                    f"Os campos do arquivo {file_name} não correspondem"
-                    " ao esquema esperado:\n\n" +
-                    ",".join(SCHEMA))
             for row in reader:
                 city_code = row['codigo_cidade_tse']
-                if city_code not in skip_cities: # nova cidade
-                    skip_proposals = set() # não precisa guardar os anteriores
-                skip_cities.add(city_code)
-                skip_proposals.add(row['codigo_prefeito_tse'])
-            # o último não deve ser pulado pois pode estar incompleto
-            skip_cities.remove(city_code)
-            print(f"Continuando a partir de {city_code}...")
 
     cities = {}
     with open("diretorio_municipios.csv", "r") as f:
