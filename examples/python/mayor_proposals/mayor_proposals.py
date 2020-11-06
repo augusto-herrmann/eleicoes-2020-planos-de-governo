@@ -37,6 +37,26 @@ SCHEMA = (
     "codigo_prefeito_tse", "nome_urna", "sigla_partido", "url"
 )
 
+def get_cities_info(file_name: str) -> dict:
+    """Pega código e informações de municípios a partir do mapeamento
+    da Base dos Dados"""
+    if not os.path.exists(file_name):
+        raise ValueError(
+            f"O arquivo não existe: {file_name}.\n"
+            "Faça o download a partir do endereço: "
+            "https://basedosdados.org/dataset/br-basedosdados-diretorios-brasil#"
+            )
+    cities = {}
+    with open(file_name, "r") as f:
+        all_cities = csv.DictReader(f)
+        for city in all_cities:
+            cities[city["id_municipio_TSE"]] = {
+                "code": city["id_municipio_TSE"],
+                "city": city["municipio"],
+                "state": city["estado_abrev"]
+            }
+    return cities
+
 def get_positions_from(city):
     endpoint = f"{BASE_ENDPOINT}/eleicao/listar/municipios/{ELECTION_CODE}/{city}/cargos"
     response = requests.get(endpoint, timeout=TIMEOUT)
@@ -163,15 +183,7 @@ if __name__ == "__main__":
             for row in reader:
                 city_code = row['codigo_cidade_tse']
 
-    cities = {}
-    with open("diretorio_municipios.csv", "r") as f:
-        all_cities = csv.DictReader(f)
-        for city in all_cities:
-            cities[city["id_municipio_TSE"]] = {
-                "code": city["id_municipio_TSE"],
-                "city": city["municipio"],
-                "state": city["estado_abrev"]
-            }
+    cities = get_cities_info("diretorio_municipios.csv")
 
     with open(
         file_name,
