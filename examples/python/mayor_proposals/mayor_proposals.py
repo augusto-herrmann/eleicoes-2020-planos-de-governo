@@ -91,7 +91,7 @@ def fill_zeroes(code):
         return f"{'0' * zeroes}{code}"
     return code
 
-def validate_csv(file_name):
+def validate_csv(file_name: str):
     "Verifica se o arquivo CSV existe e tem o esquema certo"
     if not os.path.exists(file_name):
         raise ValueError(f"O arquivo não existe: {file_name}")
@@ -103,7 +103,7 @@ def validate_csv(file_name):
                 " ao esquema esperado:\n\n" +
                 ",".join(SCHEMA))
 
-def get_proposals_to_skip(file_name) -> (set, set):
+def get_proposals_to_skip(file_name: str) -> (set, set):
     "Obtém quais cidades e propostas pular, pois já estão no arquivo"
     skip_cities = set() # essas já foram coletadas
     skip_proposals = set()
