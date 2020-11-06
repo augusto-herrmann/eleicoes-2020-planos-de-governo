@@ -37,6 +37,10 @@ SCHEMA = (
     "codigo_prefeito_tse", "nome_urna", "sigla_partido", "url"
 )
 
+def wait_cooldown():
+    "Espera um tempo entre as requisições"
+    time.sleep(random.randint(*WAIT_INTERVAL))
+
 def get_cities_info(file_name: str) -> dict:
     """Pega código e informações de municípios a partir do mapeamento
     da Base dos Dados"""
@@ -87,7 +91,7 @@ def get_proposal_url(candidate_response):
     return
 
 
-def download_proposals(url, state, city, candidate_name):
+def download_proposal(url, state, city, candidate_name):
     Path(f"pdfs/{state}/{city}").mkdir(parents=True, exist_ok=True)
     response = requests.get(url, timeout=TIMEOUT)
     candidate_name = candidate_name.lower().replace(" ", "-")
@@ -208,7 +212,7 @@ if __name__ == "__main__":
                 candidates = get_candidates_from(
                     city_code, POSITION_CODE)
                 print(city_code, city)
-                time.sleep(random.randint(*WAIT_INTERVAL))
+                wait_cooldown()
 
                 candidates_to_follow = (
                     candidate for candidate in candidates["candidatos"] \
@@ -219,7 +223,7 @@ if __name__ == "__main__":
                         city_code,
                         candidate["id"]
                         )
-                    time.sleep(random.randint(*WAIT_INTERVAL))
+                    wait_cooldown()
                     url = get_proposal_url(candidate_details)
                     spamwriter.writerow([
                         city_code, city["city"], city["state"],
@@ -230,10 +234,10 @@ if __name__ == "__main__":
                         ])
 
                     if args.download_proposals:
-                        download_proposals(
+                        download_proposal(
                             url, city["state"], city["city"],
                             candidate_details["nomeUrna"]
                             )
-                        time.sleep(random.randint(*WAIT_INTERVAL))
+                        wait_cooldown()
     end = datetime.datetime.now()
     print(f"Tempo de execução: {str(end - start)}")
