@@ -95,12 +95,26 @@ def get_proposal_url(candidate_response):
 
 def download_proposal(url, state, city, candidate_name):
     Path(f"pdfs/{state}/{city}").mkdir(parents=True, exist_ok=True)
-    response = requests.get(url, timeout=TIMEOUT)
-    candidate_name = candidate_name.lower().replace(" ", "-")
     file_name = f"pdfs/{state}/{city}/proposta-candidato-{candidate_name}.pdf"
-    with open(file_name, "wb") as f:
-        f.write(response.content)
+    if not os.path.exists(file_name):
+        response = requests.get(url, timeout=TIMEOUT)
+        candidate_name = candidate_name.lower().replace(" ", "-")
+        with open(file_name, "wb") as f:
+            f.write(response.content)
 
+def download_proposals(file_name: str):
+    "Faz os downloads das propostas a partir do arquivo CSV"
+    with open(file_name, "r") as f:
+        reader = csv.DictReader(f)
+        for proposal in reader:
+            city_name = proposal['municipio']
+            state = proposal['sigla_estado']
+            candidate_name = proposal['nome_urna']
+            url = proposal['url']
+            if url:
+                print(f'Fazendo download de {url}...')
+                download_proposal(url, state, city_name, candidate_name)
+                wait_cooldown()
 
 def get_candidate(city, candidate_code):
     endpoint = f"{BASE_ENDPOINT}/candidatura/buscar/2020/{city}/{ELECTION_CODE}/candidato/{candidate_code}"
@@ -226,7 +240,7 @@ if __name__ == "__main__":
         help="Fazer download dos PDF das propostas a partir do CSV",
         )
     args = parser.parse_args()
-
+    
     start = datetime.datetime.now()
 
     state_label = f"-{args.state}" if args.state else ""
@@ -243,20 +257,17 @@ if __name__ == "__main__":
     if args.download_from:
         file_name = args.download_from
         validate_csv(file_name)
-        with open(file_name, "r") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                city_code = row['codigo_cidade_tse']
+        download_proposals(file_name)
+    else:
+        cities = get_cities_info("diretorio_municipios.csv")
 
-    cities = get_cities_info("diretorio_municipios.csv")
-
-    crawl_proposals(
-        file_name=file_name,
-        cities=cities,
-        only_state=args.state,
-        incremental=bool(args.continue_from),
-        download_document=bool(args.download_proposals)
-        )
+        crawl_proposals(
+            file_name=file_name,
+            cities=cities,
+            only_state=args.state,
+            incremental=bool(args.continue_from),
+            download_document=bool(args.download_proposals)
+            )
     
     end = datetime.datetime.now()
     print(f"Tempo de execução: {str(end - start)}")
