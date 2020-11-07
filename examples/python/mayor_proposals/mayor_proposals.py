@@ -7,6 +7,7 @@ import os
 import time, datetime
 
 import requests
+from slugify import slugify
 
 """
 Esse script acessa a API do TSE e exporta um CSV com os links
@@ -95,7 +96,8 @@ def get_proposal_url(candidate_response):
 
 def download_proposal(url, state, city, candidate_name):
     Path(f"pdfs/{state}/{city}").mkdir(parents=True, exist_ok=True)
-    candidate_name = candidate_name.lower().replace(" ", "-")
+    city = slugify(city)
+    candidate_name = slugify(candidate_name)
     file_name = f"pdfs/{state}/{city}/proposta-candidato-{candidate_name}.pdf"
     if not os.path.exists(file_name):
         response = requests.get(url, timeout=TIMEOUT)
