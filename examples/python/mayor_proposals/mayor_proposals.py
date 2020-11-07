@@ -95,12 +95,15 @@ def get_proposal_url(candidate_response):
 
 def download_proposal(url, state, city, candidate_name):
     Path(f"pdfs/{state}/{city}").mkdir(parents=True, exist_ok=True)
+    candidate_name = candidate_name.lower().replace(" ", "-")
     file_name = f"pdfs/{state}/{city}/proposta-candidato-{candidate_name}.pdf"
     if not os.path.exists(file_name):
         response = requests.get(url, timeout=TIMEOUT)
-        candidate_name = candidate_name.lower().replace(" ", "-")
-        with open(file_name, "wb") as f:
-            f.write(response.content)
+        if response.status_code = requests.codes.all_ok:
+            with open(file_name, "wb") as f:
+                f.write(response.content)
+        else:
+            print(f'Requisição falhou com o código {response.status_code}')
 
 def download_proposals(file_name: str):
     "Faz os downloads das propostas a partir do arquivo CSV"
