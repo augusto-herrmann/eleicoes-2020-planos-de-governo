@@ -95,13 +95,13 @@ def get_proposal_url(candidate_response):
 
 
 def download_proposal(url, state, city, candidate_name):
-    Path(f"pdfs/{state}/{city}").mkdir(parents=True, exist_ok=True)
     city = slugify(city)
     candidate_name = slugify(candidate_name)
+    Path(f"pdfs/{state}/{city}").mkdir(parents=True, exist_ok=True)
     file_name = f"pdfs/{state}/{city}/proposta-candidato-{candidate_name}.pdf"
     if not os.path.exists(file_name):
         response = requests.get(url, timeout=TIMEOUT)
-        if response.status_code = requests.codes.all_ok:
+        if response.status_code == requests.codes.all_ok:
             with open(file_name, "wb") as f:
                 f.write(response.content)
         else:
