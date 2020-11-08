@@ -100,7 +100,9 @@ def download_proposal(url, state, city, candidate_name):
     Path(f"pdfs/{state}/{city}").mkdir(parents=True, exist_ok=True)
     file_name = f"pdfs/{state}/{city}/proposta-de-{candidate_name}.pdf"
     if not os.path.exists(file_name):
+        print(f'Fazendo download de {url}...')
         response = requests.get(url, timeout=TIMEOUT)
+        wait_cooldown()
         if response.status_code == requests.codes.all_ok:
             with open(file_name, "wb") as f:
                 f.write(response.content)
@@ -117,9 +119,7 @@ def download_proposals(file_name: str):
             candidate_name = proposal['nome_urna']
             url = proposal['url']
             if url:
-                print(f'Fazendo download de {url}...')
                 download_proposal(url, state, city_name, candidate_name)
-                wait_cooldown()
 
 def get_candidate(city, candidate_code):
     endpoint = f"{BASE_ENDPOINT}/candidatura/buscar/2020/{city}/{ELECTION_CODE}/candidato/{candidate_code}"
