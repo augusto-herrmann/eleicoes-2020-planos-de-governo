@@ -31,3 +31,10 @@ têm. A única alternativa que encontramos foi usar a
 [API do DivulgaCandContas](https://github.com/augusto-herrmann/divulgacandcontas-doc)
 para encontrar os links de cada um e fazer dos downloads. E assim foi
 construído este conjunto de dados.
+
+## Organização dos dados
+
+Os dados sobre candidatos estão no arquivo
+[dados/planos-de-governo.csv](dados/planos-de-governo.csv). Os textos com
+os planos de governo estão na pasta [dados/propostas](dados/propostas),
+separados por estado, município e nome de urna da(o) candidata(o).
