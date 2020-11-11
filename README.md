@@ -39,3 +39,23 @@ Os dados sobre candidatos estão no arquivo
 os planos de governo estão no arquivo compactado
 [dados/propostas.7z](dados/propostas.7z), separados em uma estrutura de
 pastas por estado, município e nome de urna da(o) candidata(o).
+
+## Licença de uso
+
+Entendemos que os dados contidos no arquivo CSV são de domínio público, uma
+vez que se trata de cadastro de órgão público (o Tribunal Superior Eleitoral),
+divulgado publicamente pelo mesmo. O amparo legal está no art. 8º, inciso V
+da
+[Lei n.º 9.610/1998](http://www.planalto.gov.br/CCIVIL_03/LEIS/L9610.htm#art8):
+
+> Art. 8º Não são objeto de proteção como direitos autorais de que trata esta
+> Lei:
+> 
+> (...)
+> 
+> V - as informações de uso comum tais como calendários, agendas,
+> **cadastros** ou legendas;
+
+Já os textos dos planos de governo são de propriedade dos seus respectivos
+autores, que por sua vez os licenciam para uso e cópia pelo público em geral,
+a partir do momento em que os mesmos são enviados ao TSE para divulgação.
