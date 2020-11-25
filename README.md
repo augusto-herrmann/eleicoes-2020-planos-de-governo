@@ -9,7 +9,7 @@ que o eleitor quer que seja feito em seu município.
 
 Dado que o volume de planos de governo é considerável, pois são vária(o)s
 candidata(o)s em cada um dos 5.570, a análise desses documentos de forma
-agregada pode trazer informações imporantes para as discussões políticas.
+agregada pode trazer informações importantes para as discussões políticas.
 Qual partido tem mais candidata(o)s a prefeita(o) que têm propostas que
 mencionam o saneamento básico? Qual perfil de candidato se preocupa mais
 com as feiras de produtos agrícolas, com o transporte público, etc.?
