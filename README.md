@@ -40,6 +40,12 @@ os planos de governo estão no arquivo compactado
 [dados/propostas.7z](dados/propostas.7z), separados em uma estrutura de
 pastas por estado, município e nome de urna da(o) candidata(o).
 
+Caso deseje baixar o conjunto completo dos documentos PDFs (um total de
+7 GB), [utilize este link](https://cloud.automario.eu/s/mk7ezK4cwpp9bLQ).
+Deixamos os nossos sinceros agradecimentos ao serviço de hospedagem
+[Automario](https://www.automario.eu/) (merci beaucoup !), que usa o software
+livre [Nextcloud](https://nextcloud.com/).
+
 ## Licença de uso
 
 Entendemos que os dados contidos no arquivo CSV são de domínio público, uma
